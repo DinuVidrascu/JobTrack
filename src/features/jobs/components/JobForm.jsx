@@ -22,12 +22,7 @@ const JobForm = ({ job, onSubmit, onClose, isLoading, isDark }) => {
       setFormData(prev => ({ ...prev, ...job }));
     }
     // Blochează scroll-ul paginii când formularul este deschis
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [job]);
-
+    
   // ESC key pentru a închide formularul
   useEffect(() => {
     const handleKeyDown = (e) => {
