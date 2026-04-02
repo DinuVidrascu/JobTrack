@@ -11,7 +11,7 @@ export default function JobHeader({ isDarkMode, toggleTheme, onOpenAdd }) {
           </div>
           <div>
             <h1 className={`text-2xl font-black tracking-tighter leading-none ${isDarkMode ? 'text-white' : 'text-slate-950'}`}>
-              JOBtrack
+              JobTrack
             </h1>
             <div className="flex items-center gap-2 mt-2">
               <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${isDarkMode ? 'bg-indigo-500/20 text-indigo-400' : 'bg-slate-100 text-slate-600'}`}>
