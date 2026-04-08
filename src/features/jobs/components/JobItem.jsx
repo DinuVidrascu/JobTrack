@@ -10,13 +10,33 @@ import {
 } from 'lucide-react';
 import StatusBadge from '../../../components/ui/StatusBadge';
 
+const getCardStyle = (status, isDark) => {
+  if (isDark) {
+    switch (status) {
+      case 'applied': return 'bg-blue-900/20 border-blue-500/30 hover:border-blue-500/50';
+      case 'interview': return 'bg-purple-900/20 border-purple-500/30 hover:border-purple-500/50';
+      case 'accepted': return 'bg-emerald-900/20 border-emerald-500/30 hover:border-emerald-500/50';
+      case 'rejected': return 'bg-rose-900/20 border-rose-500/30 hover:border-rose-500/50';
+      default: return 'bg-slate-800 border-slate-700 hover:border-slate-600';
+    }
+  } else {
+    switch (status) {
+      case 'applied': return 'bg-blue-50 border-blue-200 hover:border-blue-300';
+      case 'interview': return 'bg-purple-50 border-purple-200 hover:border-purple-300';
+      case 'accepted': return 'bg-emerald-50 border-emerald-200 hover:border-emerald-300';
+      case 'rejected': return 'bg-rose-50 border-rose-200 hover:border-rose-300';
+      default: return 'bg-slate-50 border-slate-200 hover:border-slate-300';
+    }
+  }
+};
+
 const JobItem = React.memo(({ job, onEdit, onDelete, onDownload, isDark }) => {
   return (
-    <div className={`p-5 ${isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'} border rounded-[2rem] shadow-sm hover:shadow-xl hover:scale-[1.01] transition-all duration-300 flex flex-col md:flex-row md:items-start justify-between gap-4 group animate-fade-in`}>
+    <div className={`px-5 py-3.5 ${getCardStyle(job.status, isDark)} border rounded-3xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col md:flex-row md:items-start justify-between gap-4 group animate-fade-in`}>
       <div className="flex-1 min-w-0">
-        <div className="flex flex-wrap items-center gap-3 mb-3">
+        <div className="flex flex-wrap items-center gap-3 mb-1.5">
           <div className="flex items-center gap-2">
-            <h3 className={`text-[1.125rem] font-bold transition-colors group-hover:text-primary ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            <h3 className={`text-lg font-bold transition-colors group-hover:text-primary ${isDark ? 'text-white' : 'text-slate-900'}`}>
               {job.role}
             </h3>
             {job.jobLink && (

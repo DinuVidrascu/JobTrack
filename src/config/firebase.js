@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
@@ -11,11 +11,35 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// Check if we have all required Firebase values for initialization
+const isConfigured = [
+  firebaseConfig.apiKey,
+  firebaseConfig.authDomain,
+  firebaseConfig.projectId,
+  firebaseConfig.appId
+].every(Boolean);
+const isStandalone = !isConfigured;
 
-// For consistency with other parts of the app if they need it
-const appId = import.meta.env.VITE_FIREBASE_PROJECT_ID; 
+let app, auth, db;
 
-export { auth, db, appId, app };
+if (isConfigured) {
+  console.log('Firebase config loaded:', {
+    apiKey: firebaseConfig.apiKey,
+    authDomain: firebaseConfig.authDomain,
+    projectId: firebaseConfig.projectId,
+    storageBucket: firebaseConfig.storageBucket,
+    messagingSenderId: firebaseConfig.messagingSenderId,
+    appId: firebaseConfig.appId,
+    isConfigured
+  });
+
+  app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+  auth = getAuth(app);
+  db = getFirestore(app);
+} else {
+  console.warn("⚠️ Firebase is not configured. Running in STANDALONE (Demo) mode using LocalStorage.");
+}
+
+const appId = firebaseConfig.projectId || 'demo-app';
+
+export { auth, db, appId, app, isStandalone };

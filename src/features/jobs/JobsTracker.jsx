@@ -3,6 +3,7 @@ import { useAuth } from './hooks/useAuth';
 import { useJobs } from './hooks/useJobs';
 import { useTheme } from '../../hooks/useTheme';
 import { useToast } from '../../hooks/useToast';
+import { isStandalone } from '../../config/firebase';
 
 // Features Components
 import JobForm from './components/JobForm';
@@ -17,7 +18,7 @@ import Toast from '../../components/ui/Toast';
 
 export default function JobsTracker() {
   const { isDarkMode, toggleTheme } = useTheme();
-  const { user, authLoading, authError } = useAuth();
+  const { user, authLoading, authError, signInWithGoogle, signOut } = useAuth();
   const { 
     jobs, 
     loading: jobsLoading, 
@@ -28,6 +29,8 @@ export default function JobsTracker() {
     handleDeleteJob 
   } = useJobs(user);
   const { toasts, addToast } = useToast();
+
+  const isUserSignedIn = isStandalone || !!user;
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingJob, setEditingJob] = useState(null);
@@ -66,9 +69,13 @@ export default function JobsTracker() {
   }, [handleSaveJob, editingJob, addToast]);
 
   const handleDelete = useCallback(async () => {
-    const success = await handleDeleteJob(jobToDelete);
+    const job = jobToDelete;
+    // Închidem modalul instant ca să nu pară că are "întârziere"
+    setJobToDelete(null);
+    
+    // Rulăm funcția în background
+    const success = await handleDeleteJob(job);
     if (success) {
-      setJobToDelete(null);
       addToast('Aplicație ștearsă!');
     } else {
       addToast('Eroare la ștergere. Încearcă din nou.', 'error');
@@ -85,20 +92,75 @@ export default function JobsTracker() {
     document.body.removeChild(a);
   }, []);
 
+  const handleSignIn = useCallback(async () => {
+    await signInWithGoogle();
+  }, [signInWithGoogle]);
+
+  const handleSignOut = useCallback(async () => {
+    await signOut();
+  }, [signOut]);
+
   if (authLoading || jobsLoading) {
     return <JobLoading />;
+  }
+
+  if (!isUserSignedIn) {
+    return (
+      <div className="min-h-screen p-4 sm:p-8 lg:p-12 bg-slate-50">
+        <div className="max-w-6xl mx-auto space-y-8">
+          <JobHeader
+            isDarkMode={isDarkMode}
+            toggleTheme={toggleTheme}
+            onOpenAdd={handleOpenAdd}
+            user={user}
+            onSignIn={handleSignIn}
+            onSignOut={handleSignOut}
+            canAdd={isUserSignedIn}
+          />
+
+          <div className="rounded-[2rem] border border-slate-200 bg-white p-10 shadow-sm">
+            <div className="max-w-2xl mx-auto text-center space-y-6">
+              <h2 className="text-3xl font-bold text-slate-950">Conectează-te cu Google</h2>
+              <p className="text-slate-600">
+                Folosește același cont pe PC și pe telefon pentru a vedea aceleași aplicații.
+              </p>
+              <button
+                onClick={handleSignIn}
+                className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-8 py-4 text-white font-bold hover:bg-blue-700 transition"
+              >
+                Conectare Google
+              </button>
+              <JobAuthError error={authError} />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen p-4 sm:p-8 lg:p-12 animate-fade-in transition-colors duration-500">
       <div className="max-w-6xl mx-auto space-y-10">
         
+        {isStandalone && (
+          <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-3xl shadow-sm animate-fade-in">
+            <p className="text-yellow-800 font-semibold">Modul Local Activat</p>
+            <p className="text-sm text-yellow-700 mt-2">
+              Firebase nu este configurat complet. Datele se salvează local în browser și nu se sincronizează între dispozitive.
+            </p>
+          </div>
+        )}
+
         <JobAuthError error={authError || jobsError} />
 
         <JobHeader 
           isDarkMode={isDarkMode} 
           toggleTheme={toggleTheme} 
           onOpenAdd={handleOpenAdd} 
+          user={user}
+          onSignIn={handleSignIn}
+          onSignOut={handleSignOut}
+          canAdd={isUserSignedIn}
         />
 
         <JobStats stats={stats} isDarkMode={isDarkMode} />

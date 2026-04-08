@@ -12,7 +12,7 @@ export default function JobAuthError({ error }) {
         <p className="text-rose-700 text-sm mt-1">{error}</p>
         <p className="text-rose-600 text-xs mt-3 font-medium flex items-center gap-1.5">
           <AlertCircle className="w-4 h-4" />
-          Mergi în Firebase Console -&gt; Authentication -&gt; Sign-in method și activează "Anonymous".
+          Verifică Firebase Console -&gt; Authentication -&gt; Sign-in method și activează "Google".
         </p>
       </div>
     </div>

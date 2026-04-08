@@ -111,15 +111,40 @@ const JobForm = ({ job, onSubmit, onClose, isLoading, isDark }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className={`text-[10px] font-black uppercase tracking-wider ml-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Status</label>
-              <select 
-                value={formData.status}
-                onChange={e => setFormData({...formData, status: e.target.value})}
-                className={`w-full px-5 py-3 border rounded-2xl outline-none transition-all cursor-pointer text-sm ${isDark ? 'bg-slate-800/50 border-slate-700/50 text-white focus:border-indigo-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-indigo-500'}`}
-              >
-                {Object.values(STATUSES).map(s => (
-                  <option key={s.id} value={s.id} className="bg-slate-900">{s.label}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    // Căutăm elementul "status" prin id pentru un toggle custom. Vom folosi domul pentru simplitate.
+                    const dropdown = document.getElementById('status-dropdown');
+                    if (dropdown) dropdown.classList.toggle('hidden');
+                  }}
+                  onBlur={() => setTimeout(() => {
+                    const dropdown = document.getElementById('status-dropdown');
+                    if (dropdown) dropdown.classList.add('hidden');
+                  }, 150)}
+                  className={`w-full px-5 py-3 border rounded-2xl outline-none transition-all cursor-pointer text-sm flex justify-between items-center ${isDark ? 'bg-slate-800/50 border-slate-700/50 text-white focus:border-indigo-500' : 'bg-slate-50 border-slate-200 text-slate-900 focus:border-indigo-500'}`}
+                >
+                  <span>{Object.values(STATUSES).find(s => s.id === formData.status)?.label || 'Alege'}</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50"><path d="m6 9 6 6 6-6"/></svg>
+                </button>
+                
+                <div id="status-dropdown" className={`hidden absolute top-full left-0 right-0 mt-2 p-2 rounded-2xl border shadow-xl z-20 animate-in fade-in slide-in-from-top-2 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+                  {Object.values(STATUSES).map(s => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => {
+                        setFormData({...formData, status: s.id});
+                        document.getElementById('status-dropdown').classList.add('hidden');
+                      }}
+                      className={`w-full text-left px-4 py-2.5 rounded-xl text-sm transition-all ${formData.status === s.id ? (isDark ? 'bg-indigo-500/20 text-indigo-400 font-bold' : 'bg-indigo-50 text-indigo-700 font-bold') : (isDark ? 'text-slate-300 hover:bg-slate-700' : 'text-slate-700 hover:bg-slate-50')}`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
             <div className="space-y-1.5">
               <label className={`text-[10px] font-black uppercase tracking-wider ml-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Data aplicării</label>
